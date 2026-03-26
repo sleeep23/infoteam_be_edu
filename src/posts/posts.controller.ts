@@ -25,7 +25,7 @@ export class PostsController {
   }
 
   @Get(':id')
-  findByPostId(@Param('id') id: string) {
+  findById(@Param('id') id: string) {
     return this.postsService.findById(+id);
   }
 
