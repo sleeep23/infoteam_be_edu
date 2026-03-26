@@ -1,98 +1,113 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## Posts API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+기본 경로: `/posts`
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> 현재 데이터는 인메모리(배열)로 관리됩니다. 서버 재시작 시 초기화됩니다.
 
-## Description
+### 데이터 모델
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| 필드      | 타입   | 설명                       |
+| --------- | ------ | -------------------------- |
+| `id`      | number | 게시글 고유 ID (자동 생성) |
+| `title`   | string | 제목                       |
+| `content` | string | 본문                       |
+| `userId`  | number | 작성자 ID                  |
 
-## Project setup
+### 엔드포인트
 
-```bash
-$ npm install
+#### 게시글 목록 조회
+
+```
+GET /posts
+GET /posts?userId={userId}
 ```
 
-## Compile and run the project
+- `userId` 쿼리 파라미터를 전달하면 해당 유저의 게시글만 반환합니다.
 
-```bash
-# development
-$ npm run start
+**응답 예시**
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```json
+[{ "id": 1, "title": "Post 1", "content": "Content 1", "userId": 1 }]
 ```
 
-## Run tests
+#### 게시글 단건 조회
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+GET /posts/:id
 ```
 
-## Deployment
+| 파라미터 | 위치 | 타입   | 설명      |
+| -------- | ---- | ------ | --------- |
+| `id`     | path | number | 게시글 ID |
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- 존재하지 않는 ID 요청 시 `404 Not Found` 반환
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+#### 게시글 생성
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+POST /posts
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Request Body**
 
-## Resources
+| 필드      | 타입          | 필수 | 설명              |
+| --------- | ------------- | ---- | ----------------- |
+| `title`   | string        | O    | 제목 (빈 값 불가) |
+| `content` | string        | O    | 본문 (빈 값 불가) |
+| `userId`  | number (정수) | O    | 작성자 ID         |
 
-Check out a few resources that may come in handy when working with NestJS:
+**요청 예시**
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```json
+{
+  "title": "새 게시글",
+  "content": "내용입니다.",
+  "userId": 1
+}
+```
 
-## Support
+#### 게시글 수정
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+PATCH /posts/:id?userId={userId}
+```
 
-## Stay in touch
+| 파라미터 | 위치  | 타입   | 설명           |
+| -------- | ----- | ------ | -------------- |
+| `id`     | path  | number | 게시글 ID      |
+| `userId` | query | number | 수정 요청자 ID |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**Request Body** (모두 선택)
 
-## License
+| 필드      | 타입   | 설명        |
+| --------- | ------ | ----------- |
+| `title`   | string | 변경할 제목 |
+| `content` | string | 변경할 본문 |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- 게시글 작성자(`userId`)와 요청자가 다를 경우 `403 Forbidden` 반환
+- 존재하지 않는 ID 요청 시 `404 Not Found` 반환
+
+#### 게시글 삭제
+
+```
+DELETE /posts/:id
+```
+
+| 파라미터 | 위치 | 타입   | 설명      |
+| -------- | ---- | ------ | --------- |
+| `id`     | path | number | 게시글 ID |
+
+- 존재하지 않는 ID 요청 시 `404 Not Found` 반환
+
+**응답 예시**
+
+```
+"Removed #1 post"
+```
+
+### 에러 응답
+
+| 상태 코드       | 발생 상황                           |
+| --------------- | ----------------------------------- |
+| `403 Forbidden` | 본인 게시글이 아닌 게시글 수정 시도 |
+| `404 Not Found` | 존재하지 않는 게시글 ID 요청        |
