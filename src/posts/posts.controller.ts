@@ -9,20 +9,24 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PostsResponseDto } from './dto/post-response.dto';
+import {
+  CreatePostDto,
+  DeletePostQueryDto,
+  FindPostsQueryDto,
+  PostsResponseDto,
+  UpdatePostDto,
+  UpdatePostQueryDto,
+} from './dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  findAll(@Query('userId') userId?: string): PostsResponseDto[] {
-    if (userId) {
-      return this.postsService.findPostsByUserId(+userId);
-    }
-    return this.postsService.findAll();
+  findAll(@Query() query: FindPostsQueryDto): PostsResponseDto[] {
+    return query.userId
+      ? this.postsService.findPostsByUserId(query.userId)
+      : this.postsService.findAll();
   }
 
   @Get(':id')
@@ -38,14 +42,14 @@ export class PostsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Query('userId') userId: string,
+    @Query() query: UpdatePostQueryDto,
     @Body() updatePostDto: UpdatePostDto,
   ): PostsResponseDto {
-    return this.postsService.update(+id, +userId, updatePostDto);
+    return this.postsService.update(+id, query.userId, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Query('userId') userId: string): string {
-    return this.postsService.remove(+id, +userId);
+  remove(@Param('id') id: string, @Query() query: DeletePostQueryDto): string {
+    return this.postsService.remove(+id, query.userId);
   }
 }
