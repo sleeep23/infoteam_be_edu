@@ -45,7 +45,7 @@ export class PostsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): string {
-    return this.postsService.remove(+id);
+  remove(@Param('id') id: string, @Query('userId') userId: string): string {
+    return this.postsService.remove(+id, +userId);
   }
 }

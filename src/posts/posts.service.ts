@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Post } from './entities/post.entity';
 
 @Injectable()
 export class PostsService {
@@ -14,6 +15,14 @@ export class PostsService {
     { id: 3, title: 'Post 3', content: 'Content 3', userId: 3 },
   ];
   private nextId = 4;
+
+  private validatePostOwner(postId: number, userId: number): Post {
+    const post = this.findById(postId); // NotFoundException 자동 처리
+    if (post.userId !== userId) {
+      throw new ForbiddenException('Not allowed');
+    }
+    return post;
+  }
 
   findAll() {
     return this.posts;
@@ -41,11 +50,7 @@ export class PostsService {
   }
 
   update(postId: number, userId: number, dto: UpdatePostDto) {
-    const post = this.findById(postId);
-
-    if (post.userId !== userId) {
-      throw new ForbiddenException('Not allowed to update this post');
-    }
+    const post = this.validatePostOwner(postId, userId);
 
     if (dto.title !== undefined) {
       post.title = dto.title;
@@ -58,11 +63,9 @@ export class PostsService {
     return post;
   }
 
-  remove(id: number) {
-    if (this.findPostsByUserId(id).length === 0) {
-      throw new NotFoundException('Post not found');
-    }
-    this.posts = this.posts.filter((post) => post.id !== id);
+  remove(id: number, userId: number) {
+    this.validatePostOwner(id, userId);
+    this.posts = this.posts.filter((p) => p.id !== id);
     return `Removed #${id} post`;
   }
 }
