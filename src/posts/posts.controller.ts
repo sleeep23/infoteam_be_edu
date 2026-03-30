@@ -23,33 +23,40 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  findAll(@Query() query: FindPostsQueryDto): PostsResponseDto[] {
+  async findAll(
+    @Query() query: FindPostsQueryDto,
+  ): Promise<PostsResponseDto[]> {
     return query.userId
       ? this.postsService.findPostsByUserId(query.userId)
       : this.postsService.findAll();
   }
 
   @Get(':id')
-  findById(@Param('id') id: string): PostsResponseDto {
+  async findById(@Param('id') id: string): Promise<PostsResponseDto> {
     return this.postsService.findById(+id);
   }
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto): PostsResponseDto {
+  async create(
+    @Body() createPostDto: CreatePostDto,
+  ): Promise<PostsResponseDto> {
     return this.postsService.create(createPostDto);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Query() query: UpdatePostQueryDto,
     @Body() updatePostDto: UpdatePostDto,
-  ): PostsResponseDto {
+  ): Promise<PostsResponseDto> {
     return this.postsService.update(+id, query.userId, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Query() query: DeletePostQueryDto): string {
+  async remove(
+    @Param('id') id: string,
+    @Query() query: DeletePostQueryDto,
+  ): Promise<string> {
     return this.postsService.remove(+id, query.userId);
   }
 }
