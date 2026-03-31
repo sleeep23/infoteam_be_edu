@@ -5,9 +5,9 @@ services: # 실행할 컨테이너 목록 정의
     ports: # 호스트:컨테이너 포트 매핑 / 여기선 내 호스트 5432포트 - 컨테이너 5432포트 끼리 매핑한거
       - '5432:5432'
     environment: # 환경변수 설정
-      POSTGRES_DB: nest_db # 생성할 데이터베이스 이름
-      POSTGRES_USER: nest_user # DB 접속 유저 이름
-      POSTGRES_PASSWORD: nest_password # DB 접속 유저 비밀번호
+      POSTGRES_DB: ${POSTGRES_DB} # 생성할 데이터베이스 이름
+      POSTGRES_USER: ${POSTGRES_USER} #} # DB 접속 유저 이름
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # DB 접속 유저 비밀번호
     volumes:
       - postgres_data:/var/lib/postgresql/data # 컨테이너 재시작해도 데이터 유지되게끔 볼륨에 저장
 
