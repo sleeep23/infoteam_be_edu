@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
@@ -58,12 +59,6 @@ export class PostsController {
 
   @Get(':id')
   @ApiOperation({ summary: '게시글 단건 조회' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: '게시글 ID',
-    type: Number,
-  })
   @ApiOkResponse({
     description: '게시글 조회 성공',
     type: PostsResponseDto,
@@ -72,7 +67,9 @@ export class PostsController {
     description: '게시글을 찾을 수 없음',
     type: ErrorResponseDto,
   })
-  async findById(@Param('id') id: string): Promise<PostsResponseDto> {
+  async findById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<PostsResponseDto> {
     return this.postsService.findById(+id);
   }
 
@@ -94,7 +91,6 @@ export class PostsController {
 
   @Patch(':id')
   @ApiOperation({ summary: '게시글 수정' })
-  @ApiParam({ name: 'id', type: Number, description: '게시글 ID' })
   @ApiOkResponse({
     description: '게시글 수정 성공',
     type: PostsResponseDto,
@@ -112,7 +108,7 @@ export class PostsController {
     type: ErrorResponseDto,
   })
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: UpdatePostQueryDto,
     @Body() updatePostDto: UpdatePostDto,
   ): Promise<PostsResponseDto> {
@@ -121,7 +117,6 @@ export class PostsController {
 
   @Delete(':id')
   @ApiOperation({ summary: '게시글 삭제' })
-  @ApiParam({ name: 'id', type: Number, description: '게시글 ID' })
   @ApiOkResponse({ description: '게시글 삭제 성공', type: String })
   @ApiForbiddenResponse({
     description: '삭제 권한 없음',
@@ -132,7 +127,7 @@ export class PostsController {
     type: ErrorResponseDto,
   })
   async remove(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: DeletePostQueryDto,
   ): Promise<string> {
     return this.postsService.remove(+id, query.userId);
