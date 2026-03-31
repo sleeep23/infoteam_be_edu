@@ -11,8 +11,8 @@ export class PostsRepository {
     return this.prisma.post.findMany();
   }
 
-  findById(id: number): Promise<Post | null> {
-    return this.prisma.post.findUnique({
+  findById(id: number): Promise<Post> {
+    return this.prisma.post.findUniqueOrThrow({
       where: { id },
     });
   }

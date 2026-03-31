@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
@@ -26,9 +22,7 @@ export class PostsService {
   }
 
   async findById(id: number): Promise<Post> {
-    const post = await this.postsRepository.findById(id);
-    if (!post) throw new NotFoundException('Post not found');
-    return post;
+    return this.postsRepository.findById(id);
   }
 
   async findPostsByUserId(userId: number): Promise<Post[]> {
@@ -44,9 +38,7 @@ export class PostsService {
     userId: number,
     dto: UpdatePostDto,
   ): Promise<Post> {
-    const post = await this.validatePostOwner(postId, userId);
-    if (dto.title !== undefined) post.title = dto.title;
-    if (dto.content !== undefined) post.content = dto.content;
+    await this.validatePostOwner(postId, userId);
     return this.postsRepository.update(postId, dto);
   }
 
