@@ -18,18 +18,14 @@ import {
   UpdatePostDto,
   UpdatePostQueryDto,
 } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 import {
-  ApiBadRequestResponse,
-  ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
-import { ErrorResponseDto } from './dto/error-response.dto';
+  ApiCreatePost,
+  ApiDeletePost,
+  ApiGetPostById,
+  ApiGetPosts,
+  ApiUpdatePost,
+} from './decorators/api-posts.decorator';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -37,18 +33,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  @ApiOperation({ summary: '게시글 목록 조회' })
-  @ApiOkResponse({
-    description: '게시글 목록 조회 성공',
-    type: PostsResponseDto,
-    isArray: true,
-  })
-  @ApiQuery({
-    name: 'userId',
-    required: false,
-    description: '특정 유저의 게시글 목록 조회',
-    type: Number,
-  })
+  @ApiGetPosts()
   async findAll(
     @Query() query: FindPostsQueryDto,
   ): Promise<PostsResponseDto[]> {
@@ -58,15 +43,7 @@ export class PostsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '게시글 단건 조회' })
-  @ApiOkResponse({
-    description: '게시글 조회 성공',
-    type: PostsResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: '게시글을 찾을 수 없음',
-    type: ErrorResponseDto,
-  })
+  @ApiGetPostById()
   async findById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PostsResponseDto> {
@@ -74,15 +51,7 @@ export class PostsController {
   }
 
   @Post()
-  @ApiOperation({ summary: '게시글 생성' })
-  @ApiCreatedResponse({
-    description: '게시글 생성 성공',
-    type: PostsResponseDto,
-  })
-  @ApiBadRequestResponse({
-    description: '잘못 요청된 데이터',
-    type: ErrorResponseDto,
-  })
+  @ApiCreatePost()
   async create(
     @Body() createPostDto: CreatePostDto,
   ): Promise<PostsResponseDto> {
@@ -90,23 +59,7 @@ export class PostsController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: '게시글 수정' })
-  @ApiOkResponse({
-    description: '게시글 수정 성공',
-    type: PostsResponseDto,
-  })
-  @ApiBadRequestResponse({
-    description: '잘못된 요청 데이터',
-    type: ErrorResponseDto,
-  })
-  @ApiForbiddenResponse({
-    description: '수정 권한 없음',
-    type: ErrorResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: '게시글을 찾을 수 없음',
-    type: ErrorResponseDto,
-  })
+  @ApiUpdatePost()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Query() query: UpdatePostQueryDto,
@@ -116,16 +69,7 @@ export class PostsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: '게시글 삭제' })
-  @ApiOkResponse({ description: '게시글 삭제 성공', type: String })
-  @ApiForbiddenResponse({
-    description: '삭제 권한 없음',
-    type: ErrorResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: '게시글을 찾을 수 없음',
-    type: ErrorResponseDto,
-  })
+  @ApiDeletePost()
   async remove(
     @Param('id', ParseIntPipe) id: number,
     @Query() query: DeletePostQueryDto,
