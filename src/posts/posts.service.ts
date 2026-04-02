@@ -1,71 +1,50 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
+import { PostsRepository } from './posts.repository';
 
 @Injectable()
 export class PostsService {
-  private posts: Post[] = [
-    { id: 1, title: 'Post 1', content: 'Content 1', userId: 1 },
-    { id: 2, title: 'Post 2', content: 'Content 2', userId: 2 },
-    { id: 3, title: 'Post 3', content: 'Content 3', userId: 3 },
-  ];
-  private nextId = 4;
+  constructor(private readonly postsRepository: PostsRepository) {}
 
-  private validatePostOwner(postId: number, userId: number): Post {
-    const post = this.findById(postId);
-    if (post.userId !== userId) {
-      throw new ForbiddenException('Not allowed');
-    }
+  private async validatePostOwner(
+    postId: number,
+    userId: number,
+  ): Promise<Post> {
+    const post = await this.findById(postId);
+    if (post.userId !== userId) throw new ForbiddenException('Not allowed');
     return post;
   }
 
-  findAll(): Post[] {
-    return this.posts;
+  async findAll(): Promise<Post[]> {
+    return this.postsRepository.findAll();
   }
 
-  findById(id: number): Post {
-    const post = this.posts.find((post) => post.id === id);
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-    return post;
+  async findById(id: number): Promise<Post> {
+    return this.postsRepository.findById(id);
   }
 
-  findPostsByUserId(userId: number): Post[] {
-    return this.posts.filter((post) => post.userId === userId);
+  async findPostsByUserId(userId: number): Promise<Post[]> {
+    return this.postsRepository.findByUserId(userId);
   }
 
-  create(createPostDto: CreatePostDto): Post {
-    const newPost = {
-      id: this.nextId++,
-      ...createPostDto,
-    };
-    this.posts.push(newPost);
-    return newPost;
+  async create(createPostDto: CreatePostDto): Promise<Post> {
+    return this.postsRepository.create(createPostDto);
   }
 
-  update(postId: number, userId: number, dto: UpdatePostDto): Post {
-    const post = this.validatePostOwner(postId, userId);
-
-    if (dto.title !== undefined) {
-      post.title = dto.title;
-    }
-
-    if (dto.content !== undefined) {
-      post.content = dto.content;
-    }
-
-    return post;
+  async update(
+    postId: number,
+    userId: number,
+    dto: UpdatePostDto,
+  ): Promise<Post> {
+    await this.validatePostOwner(postId, userId);
+    return this.postsRepository.update(postId, dto);
   }
 
-  remove(id: number, userId: number): string {
-    this.validatePostOwner(id, userId);
-    this.posts = this.posts.filter((p) => p.id !== id);
+  async remove(id: number, userId: number): Promise<string> {
+    await this.validatePostOwner(id, userId);
+    await this.postsRepository.delete(id);
     return `Removed #${id} post`;
   }
 }

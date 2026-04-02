@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
@@ -17,39 +18,62 @@ import {
   UpdatePostDto,
   UpdatePostQueryDto,
 } from './dto';
+import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatePost,
+  ApiDeletePost,
+  ApiGetPostById,
+  ApiGetPosts,
+  ApiUpdatePost,
+} from './decorators/api-posts.decorator';
 
+@ApiTags('posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  findAll(@Query() query: FindPostsQueryDto): PostsResponseDto[] {
+  @ApiGetPosts()
+  async findAll(
+    @Query() query: FindPostsQueryDto,
+  ): Promise<PostsResponseDto[]> {
     return query.userId
       ? this.postsService.findPostsByUserId(query.userId)
       : this.postsService.findAll();
   }
 
   @Get(':id')
-  findById(@Param('id') id: string): PostsResponseDto {
+  @ApiGetPostById()
+  async findById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<PostsResponseDto> {
     return this.postsService.findById(+id);
   }
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto): PostsResponseDto {
+  @ApiCreatePost()
+  async create(
+    @Body() createPostDto: CreatePostDto,
+  ): Promise<PostsResponseDto> {
     return this.postsService.create(createPostDto);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  @ApiUpdatePost()
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: UpdatePostQueryDto,
     @Body() updatePostDto: UpdatePostDto,
-  ): PostsResponseDto {
+  ): Promise<PostsResponseDto> {
     return this.postsService.update(+id, query.userId, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Query() query: DeletePostQueryDto): string {
+  @ApiDeletePost()
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: DeletePostQueryDto,
+  ): Promise<string> {
     return this.postsService.remove(+id, query.userId);
   }
 }
