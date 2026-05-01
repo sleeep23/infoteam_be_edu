@@ -18,7 +18,6 @@ export class AuthService {
         name: user.name,
         profileImage: user.profileImage,
         provider: user.provider,
-        providerId: user.providerId,
       },
       tokens: {
         accessToken: 'temporary-access-token',
