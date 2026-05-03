@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../lib/prisma/src/prisma.service';
-import { CreatePostDto, UpdatePostDto } from 'src/posts/dto';
+import { UpdatePostDto } from 'src/posts/dto';
 import { Post } from './entities/post.entity';
+import { CreatePostInput } from 'src/auth/types/create-post-input.type';
 
 @Injectable()
 export class PostsRepository {
@@ -23,7 +24,7 @@ export class PostsRepository {
     });
   }
 
-  create(dto: CreatePostDto): Promise<Post> {
+  create(dto: CreatePostInput): Promise<Post> {
     return this.prisma.post.create({
       data: dto,
     });

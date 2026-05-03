@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
 import { PostsRepository } from './posts.repository';
+import { CreatePostInput } from 'src/auth/types/create-post-input.type';
 
 @Injectable()
 export class PostsService {
@@ -29,8 +29,8 @@ export class PostsService {
     return this.postsRepository.findByUserId(userId);
   }
 
-  async create(createPostDto: CreatePostDto): Promise<Post> {
-    return this.postsRepository.create(createPostDto);
+  async create(input: CreatePostInput): Promise<Post> {
+    return this.postsRepository.create(input);
   }
 
   async update(

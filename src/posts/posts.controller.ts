@@ -8,6 +8,8 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
@@ -26,6 +28,13 @@ import {
   ApiGetPosts,
   ApiUpdatePost,
 } from './decorators/api-posts.decorator';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { AuthenticatedUser } from 'src/auth/types/authenticated-user.type';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+
+type AuthenticatedRequest = Request & {
+  user: AuthenticatedUser;
+};
 
 @ApiTags('posts')
 @Controller('posts')
@@ -51,11 +60,16 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiCreatePost()
   async create(
+    @CurrentUser() user: AuthenticatedUser,
     @Body() createPostDto: CreatePostDto,
   ): Promise<PostsResponseDto> {
-    return this.postsService.create(createPostDto);
+    return this.postsService.create({
+      ...createPostDto,
+      userId: user.id,
+    });
   }
 
   @Patch(':id')
