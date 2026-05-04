@@ -9,18 +9,15 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
   CreatePostDto,
-  DeletePostQueryDto,
   FindPostsQueryDto,
   PostsResponseDto,
   UpdatePostDto,
-  UpdatePostQueryDto,
 } from './dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   ApiCreatePost,
   ApiDeletePost,
@@ -31,10 +28,6 @@ import {
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AuthenticatedUser } from 'src/auth/types/authenticated-user.type';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-
-type AuthenticatedRequest = Request & {
-  user: AuthenticatedUser;
-};
 
 @ApiTags('posts')
 @Controller('posts')
@@ -60,6 +53,7 @@ export class PostsController {
   }
 
   @Post()
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiCreatePost()
   async create(
@@ -73,21 +67,25 @@ export class PostsController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiUpdatePost()
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Query() query: UpdatePostQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() updatePostDto: UpdatePostDto,
   ): Promise<PostsResponseDto> {
-    return this.postsService.update(+id, query.userId, updatePostDto);
+    return this.postsService.update(+id, user.id, updatePostDto);
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiDeletePost()
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @Query() query: DeletePostQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<string> {
-    return this.postsService.remove(+id, query.userId);
+    return this.postsService.remove(+id, user.id);
   }
 }

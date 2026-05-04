@@ -20,6 +20,7 @@ async function bootstrap() {
     .setTitle('First Nest API')
     .setDescription('Posts API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('posts')
     .build();
 

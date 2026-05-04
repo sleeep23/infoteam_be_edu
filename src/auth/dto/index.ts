@@ -4,3 +4,5 @@ export * from './find-or-create-oauth-user.dto';
 export * from './login-response.dto';
 export * from './oauth-login.dto';
 export * from './oauth-provider.type';
+export * from './local-login.dto';
+export * from './local-signup.dto';
