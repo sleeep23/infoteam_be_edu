@@ -53,8 +53,8 @@ export class PostsController {
   }
 
   @Post()
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiCreatePost()
   async create(
     @CurrentUser() user: AuthenticatedUser,
@@ -67,8 +67,8 @@ export class PostsController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiUpdatePost()
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -79,8 +79,8 @@ export class PostsController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiDeletePost()
   async remove(
     @Param('id', ParseIntPipe) id: number,

@@ -11,22 +11,22 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('google')
-  @ApiBearerAuth()
   @UseGuards(GoogleAuthGuard)
+  @ApiBearerAuth()
   googleLogin() {
     // guard가 구글 로그인 페이지로 리다이렉션 시킴
   }
 
   @Get('google/callback')
-  @ApiBearerAuth()
   @UseGuards(GoogleAuthGuard)
+  @ApiBearerAuth()
   googleCallback(@Req() user: OAuthUser) {
     return this.authService.login(user);
   }
 
   @Get('me')
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   me(@Req() req: Request & { user: AuthenticatedUser }) {
     return req.user;
   }
