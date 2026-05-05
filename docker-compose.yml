@@ -1,4 +1,29 @@
 services: # 실행할 컨테이너 목록 정의
+  app:
+    build: .
+    container_name: first_nest
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+      GISTORY_CLIENT_ID: ${GISTORY_CLIENT_ID}
+      GISTORY_CLIENT_SECRET: ${GISTORY_CLIENT_SECRET}
+      GISTORY_AUTHORIZE_URL: ${GISTORY_AUTHORIZE_URL}
+      GISTORY_TOKEN_URL: ${GISTORY_TOKEN_URL}
+      GISTORY_USERINFO_URL: ${GISTORY_USERINFO_URL}
+      GISTORY_CALLBACK_URL: ${GISTORY_CALLBACK_URL}
+      GISTORY_SCOPES: ${GISTORY_SCOPES}
+      GISTORY_CODE_CHALLENGE: ${GISTORY_CODE_CHALLENGE}
+    depends_on:
+      - postgres
   postgres: # 서비스 이름 설정하는거
     image: postgres:16 # 도커 허브에서 16버전 이미지 사용
     container_name: nest_postgres # 컨테이너 이름 (docker ps 에서 나오는 이름)
