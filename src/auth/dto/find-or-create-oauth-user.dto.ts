@@ -39,5 +39,5 @@ export class FindOrCreateOAuthUserDto {
   })
   @IsOptional()
   @IsUrl()
-  profileImage?: string;
+  profileImage?: string | null;
 }

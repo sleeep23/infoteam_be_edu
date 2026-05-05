@@ -1,4 +1,13 @@
-import { Controller, Get, UseGuards, Req, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Post,
+  Body,
+  Redirect,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
@@ -39,5 +48,25 @@ export class AuthController {
   @Post('signup')
   signup(@Body() dto: LocalSignupDto) {
     return this.authService.signup(dto);
+  }
+
+  @Get('gistory')
+  @Redirect()
+  gistoryLogin() {
+    const params = new URLSearchParams({
+      client_id: process.env.GISTORY_CLIENT_ID!,
+      redirect_uri: process.env.GISTORY_CALLBACK_URL!,
+      response_type: 'code',
+      scope: process.env.GISTORY_SCOPES!,
+      code_challenge: process.env.GISTORY_CODE_CHALLENGE!,
+      code_challenge_method: 'plain',
+    });
+    const url = `${process.env.GISTORY_AUTHORIZE_URL}?${params.toString()}`;
+    return { url };
+  }
+
+  @Get('gistory/callback')
+  async gistoryCallback(@Query('code') code: string) {
+    return this.authService.gistoryLogin(code);
   }
 }

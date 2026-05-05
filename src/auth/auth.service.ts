@@ -11,9 +11,10 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from './types/jwt-payload.type';
 import { OAuthUser } from './types/oauth-user.type';
-import { AuthenticatedUser } from './types';
+import { AuthenticatedUser, GistoryTokenResponseType } from './types';
 
 import * as bcrypt from 'bcrypt';
+import { GistoryUserInfoResponseType } from './types/gistory-user-info-response.type';
 
 @Injectable()
 export class AuthService {
@@ -69,7 +70,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name ?? undefined,
-        profileImage: user.profileImage ?? undefined,
+        profileImage: user.profileImage,
         provider: user.provider,
       },
       tokens: await this.generateTokens(user),
@@ -101,6 +102,71 @@ export class AuthService {
 
   async localLogin(dto: LocalLoginDto): Promise<LoginResponseDto> {
     const user = await this.validateLocalUser(dto);
+    return this.login(user);
+  }
+
+  async gistoryLogin(code: string): Promise<LoginResponseDto> {
+    const clientId = this.configService.getOrThrow<string>('GISTORY_CLIENT_ID');
+    const clientSecret = this.configService.getOrThrow<string>(
+      'GISTORY_CLIENT_SECRET',
+    );
+    const tokenUrl = this.configService.getOrThrow<string>('GISTORY_TOKEN_URL');
+    const userInfoUrl = this.configService.getOrThrow<string>(
+      'GISTORY_USERINFO_URL',
+    );
+    const codeVerifier = this.configService.getOrThrow<string>(
+      'GISTORY_CODE_CHALLENGE',
+    );
+    const basicToken = Buffer.from(`${clientId}:${clientSecret}`).toString(
+      'base64',
+    );
+
+    const body = new URLSearchParams({
+      code,
+      grant_type: 'authorization_code',
+      code_verifier: codeVerifier,
+    });
+
+    const tokenResponse = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basicToken}`,
+      },
+      body,
+    });
+
+    if (!tokenResponse.ok) {
+      const errorBody = await tokenResponse.text();
+      throw new UnauthorizedException(
+        `gistory token exchange failed: ${errorBody}`,
+      );
+    }
+
+    const tokenBody = (await tokenResponse.json()) as GistoryTokenResponseType;
+    const userInfoResponse = await fetch(userInfoUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${tokenBody.access_token}`,
+      },
+    });
+
+    if (!userInfoResponse.ok) {
+      const errorBody = await userInfoResponse.text();
+      throw new UnauthorizedException(`gistory user info failed: ${errorBody}`);
+    }
+
+    const profile =
+      (await userInfoResponse.json()) as GistoryUserInfoResponseType;
+
+    const user = await this.validateOAuthUser({
+      provider: 'gistory',
+      providerId: profile.sub,
+      email: profile.email,
+      name: profile.name,
+      profileImage: profile.picture,
+    });
+
     return this.login(user);
   }
 }

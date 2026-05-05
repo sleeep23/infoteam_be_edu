@@ -24,7 +24,7 @@ export class AuthUserResponseDto {
     example: 'https://lh3.googleusercontent.com/a/profile-image',
     description: '사용자 프로필 이미지 URL',
   })
-  profileImage?: string;
+  profileImage?: string | null;
 
   @ApiProperty({
     example: 'google',
