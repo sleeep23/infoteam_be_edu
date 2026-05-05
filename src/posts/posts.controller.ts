@@ -8,17 +8,16 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
   CreatePostDto,
-  DeletePostQueryDto,
   FindPostsQueryDto,
   PostsResponseDto,
   UpdatePostDto,
-  UpdatePostQueryDto,
 } from './dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   ApiCreatePost,
   ApiDeletePost,
@@ -26,6 +25,9 @@ import {
   ApiGetPosts,
   ApiUpdatePost,
 } from './decorators/api-posts.decorator';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { AuthenticatedUser } from 'src/auth/types/authenticated-user.type';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -51,29 +53,39 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiCreatePost()
   async create(
+    @CurrentUser() user: AuthenticatedUser,
     @Body() createPostDto: CreatePostDto,
   ): Promise<PostsResponseDto> {
-    return this.postsService.create(createPostDto);
+    return this.postsService.create({
+      ...createPostDto,
+      userId: user.id,
+    });
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiUpdatePost()
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Query() query: UpdatePostQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() updatePostDto: UpdatePostDto,
   ): Promise<PostsResponseDto> {
-    return this.postsService.update(+id, query.userId, updatePostDto);
+    return this.postsService.update(+id, user.id, updatePostDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiDeletePost()
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @Query() query: DeletePostQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<string> {
-    return this.postsService.remove(+id, query.userId);
+    return this.postsService.remove(+id, user.id);
   }
 }

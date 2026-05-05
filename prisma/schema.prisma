@@ -12,9 +12,24 @@ datasource db {
   provider = "postgresql"
 }
 
+enum AuthProvider {
+  google
+  github
+  gistory
+  local
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
-  posts Post[]
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  name         String?
+  profileImage String?
+  provider     AuthProvider
+  providerId   String
+  passwordHash String?
+  posts        Post[]
+
+  @@unique([provider, providerId])
 }
 
 model Post {
